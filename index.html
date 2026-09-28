@@ -84,6 +84,9 @@ button{font:inherit;color:inherit;cursor:pointer}
 .score .a .n{color:var(--gatos)} .score .s .n{color:var(--sara)}
 .score .vs{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:center}
 .reset{justify-self:center;border:0;background:none;color:var(--muted);font-size:12.5px;text-decoration:underline}
+.confirm{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;font-weight:600;font-size:14px}
+.confirm button{border:2px solid var(--ink);background:none;border-radius:8px;padding:6px 12px;font-weight:800;font-size:13.5px}
+.confirm .yes{background:var(--red);border-color:var(--red);color:#fff}
 .foot{font-size:12.5px;color:var(--muted);text-align:center;margin:0}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -135,6 +138,11 @@ button{font:inherit;color:inherit;cursor:pointer}
     <div class="p s"><span class="eyebrow">Susana</span><span class="n num" id="sc-s">0</span></div>
   </div>
   <button class="reset" id="reset" type="button">Borrar marcador</button>
+  <div class="confirm" id="confirm" hidden>
+    <span>¿Borrar todas las condenas?</span>
+    <button class="yes" id="c-yes" type="button">Sí, borrar</button>
+    <button id="c-no" type="button">Cancelar</button>
+  </div>
   <p class="foot">Un juego, no un registro: nadie apunta nada, la ruleta decide y punto.</p>
 </div>
 
@@ -247,9 +255,12 @@ $('v-ok').onclick=()=>{
   face('happy');say(pick(['Condena registrada. Justicia para Monedero.','Así me gusta. A cumplir.','Anotado. Y que no se repita… (se repetirá).']));
 };
 $('v-rec').onclick=()=>{last=null;say('¿Recurrir? Vale, pero el tribunal está de mal humor…');spin()};
-let armed=false;
-$('reset').onclick=()=>{if(!armed){armed=true;$('reset').textContent='¿Seguro? Toca otra vez';setTimeout(()=>{armed=false;$('reset').textContent='Borrar marcador'},3500);return}
-  armed=false;score={A:0,S:0,spins:0};ls.set('rc-score',score);renderScore();face('happy');$('reset').textContent='Borrar marcador';say('Borrón y cuenta nueva. Mi cuenta sigue en cero, eso sí.')};
+$('reset').onclick=()=>{$('reset').hidden=true;$('confirm').hidden=false};
+$('c-no').onclick=()=>{$('confirm').hidden=true;$('reset').hidden=false};
+$('c-yes').onclick=()=>{
+  score={A:0,S:0,spins:0};last=null;ls.set('rc-score',score);renderScore();face('happy');
+  $('confirm').hidden=true;$('reset').hidden=false;$('verdict').hidden=true;
+  say('Borrón y cuenta nueva. Marcador a cero… como mi cuenta.')};
 
 matchMedia('(prefers-color-scheme:dark)').addEventListener?.('change',draw);
 new MutationObserver(draw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
